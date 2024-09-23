@@ -1,0 +1,4 @@
+<server description="Variables for ${project.root}">
+    <variable name="${project.root}.dtasource.user" value="sa" />
+    <variable name="${project.root}.dtasource.password" value="sa" />
+</server>

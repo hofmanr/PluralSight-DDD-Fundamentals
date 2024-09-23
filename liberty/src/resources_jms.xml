@@ -1,0 +1,49 @@
+<server>
+    <featureManager>
+        <feature>messaging-3.1</feature>
+        <feature>messagingServer-3.0</feature>
+        <feature>messagingClient-3.0</feature>
+    </featureManager>
+
+    <connectionManager id="vcc.jms.connectionManager" maxPoolSize="10" minPoolSize="1"/>
+
+    <jmsConnectionFactory id="vcc.jms.vetClinicCF"
+                          connectionManagerRef="vcc.jms.connectionManager"
+                          jndiName="jms/vetClinicCF">
+        <properties.wasJms nonPersistentMapping="ExpressNonPersistent" persistentMapping="ReliablePersistent"/>
+    </jmsConnectionFactory>
+
+    <!-- The queues -->
+    <messagingEngine>
+        <queue id="${project.root}.publicInputQueue" forceReliability="ReliablePersistent" maxMessageDepth="1000"/>
+        <queue id="${project.root}.publicOutputQueue" forceReliability="ReliablePersistent" maxMessageDepth="1000"/>
+        <queue id="${project.root}.managementQueue" forceReliability="ReliablePersistent" maxMessageDepth="1000"/>
+    </messagingEngine>
+
+    <jmsQueue id="${project.root}.jms.publicInputQE" jndiName="jms/vccPublicInputQueue">
+        <properties.wasJms deliveryMode="Application"
+                           priority="1"
+                           queueName="${project.root}.publicInputQueue"
+                           readAhead="AsConnection" timeToLive="0"/>
+    </jmsQueue>
+    <jmsQueue id="${project.root}.jms.vetClinicOutputQE" jndiName="jms/vccPublicOutputQueue">
+        <properties.wasJms deliveryMode="Application"
+                           priority="1"
+                           queueName="${project.root}.publicOutputQueue"
+                           readAhead="AsConnection" timeToLive="0"/>
+    </jmsQueue>
+    <jmsQueue id="${project.root}.jms.managementQE" jndiName="jms/vccManagementQueue">
+        <properties.wasJms deliveryMode="Application"
+                           priority="1"
+                           queueName="${project.root}.managementQueue"
+                           readAhead="AsConnection" timeToLive="0"/>
+    </jmsQueue>
+
+    <!-- Activation Spec (AS) for queue listeners -->
+    <jmsActivationSpec id="eis/vcc-public/as">
+        <properties.wasJms destinationRef="${project.root}.jms.publicInputQE"/>
+    </jmsActivationSpec>
+    <jmsActivationSpec id="eis/vcc-management/as">
+        <properties.wasJms destinationRef="${project.root}.jms.managementQE"/>
+    </jmsActivationSpec>
+</server>

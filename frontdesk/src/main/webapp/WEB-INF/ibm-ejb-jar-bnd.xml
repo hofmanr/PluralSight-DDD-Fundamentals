@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar-bnd xmlns="http://websphere.ibm.com/xml/ns/javaee"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://websphere.ibm.com/xml/ns/javaee http://websphere.ibm.com/xml/ns/javaee/ibm-ejb-jar-bnd_1_1.xsd"
+             version="1.1">
+<!--    <session name="MySessionBean">-->
+<!--        <resource-ref name="" binding-name=""/>-->
+<!--    </session>-->
+    <message-driven name="PublicMessageListener">
+        <jca-adapter activation-spec-binding-name="eis/vcc-public/as" />
+    </message-driven>
+    <message-driven name="ManagementMessageListener">
+        <jca-adapter activation-spec-binding-name="eis/vcc-management/as" />
+    </message-driven>
+
+</ejb-jar-bnd>

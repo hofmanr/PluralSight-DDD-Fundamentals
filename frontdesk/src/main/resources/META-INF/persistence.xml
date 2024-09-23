@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+  <persistence-unit name="vetClinicFrontDeskPU" transaction-type="JTA">
+    <jta-data-source>jdbc/vetClinicDS</jta-data-source>
+    <!--    <jta-data-source>java:comp/env/jdbc/vetClinicDS</jta-data-source>-->
+<!--    <class>pluralsightddd.sharedkernel.infrastructure.data.converters.IDAttributeConverter</class>-->
+    <class>pluralsightddd.sharedkernel.infrastructure.data.converters.UUIDAttributeConverter</class>
+
+    <class>com.pluralsight.frontdesk.core.scheduleaggregate.Schedule</class>
+    <class>com.pluralsight.frontdesk.core.scheduleaggregate.Appointment</class>
+    <class>com.pluralsight.frontdesk.core.syncedaggregates.Doctor</class>
+    <class>com.pluralsight.frontdesk.core.syncedaggregates.Room</class>
+    <class>com.pluralsight.frontdesk.core.syncedaggregates.Client</class>
+    <class>com.pluralsight.frontdesk.core.syncedaggregates.AppointmentType</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <!-- disable caching -->
+    <shared-cache-mode>NONE</shared-cache-mode>
+    <properties>
+      <!-- The external client should use something like jdbc:h2:tcp://localhost:18080/mem:vetClinic -->
+      <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
+      <property name="jakarta.persistence.sql-load-script-source" value="init_db.sql"/>
+      <!-- Liberty uses (default) EclipseLink -->
+      <property name="eclipselink.weaving" value="true"/> <!-- true, false(means: reset to default) or static -->
+      <property name="eclipselink.query-results-cache" value="false"/>
+<!--      <property name="eclipselink.weaving.changetracking" value="true"/>-->
+<!--      <property name="eclipselink.weaving.lazy" value="true"/>-->
+<!--      <property name="eclipselink.weaving.eager" value="true"/>-->
+<!--      <property name="eclipselink.weaving.fetchgroups" value="true"/>-->
+<!--      <property name="eclipselink.weaving.internal" value="false"/>-->
+
+      <property name="eclipselink.logging.level" value="FINE"/>
+      <property name="eclipselink.logging.parameters" value="true"/>
+    </properties>
+  </persistence-unit>
+
+  <persistence-unit name="vetClinicSyncPU" transaction-type="JTA">
+    <jta-data-source>jdbc/vetClinicDS</jta-data-source>
+    <class>com.pluralsight.frontdesk.infrastructure.data.sync.entities.Client</class>
+    <class>com.pluralsight.frontdesk.infrastructure.data.sync.entities.Doctor</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <!-- disable caching -->
+    <shared-cache-mode>NONE</shared-cache-mode>
+    <properties>
+      <!-- Don't create database tables here! -->
+      <property name="jakarta.persistence.schema-generation.database.action" value="none"/>
+
+      <property name="eclipselink.weaving" value="true"/> <!-- true, false(means: reset to default) or static -->
+      <property name="eclipselink.query-results-cache" value="false"/>
+      <property name="eclipselink.logging.level" value="FINE"/>
+      <property name="eclipselink.logging.parameters" value="true"/>
+    </properties>
+  </persistence-unit>
+</persistence>

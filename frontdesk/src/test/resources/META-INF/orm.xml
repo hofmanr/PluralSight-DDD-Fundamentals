@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- see https://thorben-janssen.com/mapping-definitions-jpa-hibernate-annotations-xml/ -->
+<entity-mappings version="3.0"
+                 xmlns="https://jakarta.ee/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence/orm https://jakarta.ee/xml/ns/persistence/orm/orm_3_0.xsd">
+    <package>com.pluralsight.frontdesk.core</package>
+    <access>FIELD</access>
+
+    <mapped-superclass
+            class="pluralsightddd.sharedkernel.ddd.types.DomainEntity">
+        <attributes>
+            <id name="id"></id>
+            <version name="version"></version>
+            <transient name="events" />
+        </attributes>
+    </mapped-superclass>
+
+    <entity
+            class="com.pluralsight.frontdesk.core.scheduleaggregate.Appointment">
+        <table name="APPOINTMENTS" />
+        <convert
+                converter="pluralsightddd.sharedkernel.infrastructure.data.converters.IDAttributeConverter"
+                attribute-name="id">
+        </convert>
+        <attributes>
+            <basic name="scheduleId">
+                <column name="schedule_id" />
+            </basic>
+            <basic name="appointmentTypeId">
+                <column name="appointment_type" nullable="false" />
+            </basic>
+            <basic name="clientId">
+                <column name="client_id" nullable="false" />
+            </basic>
+            <basic name="doctorId">
+                <column name="doctor_id" nullable="false" />
+            </basic>
+            <basic name="patientId">
+                <column name="patient_id" nullable="false" />
+            </basic>
+            <basic name="roomId">
+                <column name="room_id" nullable="false" />
+            </basic>
+            <basic name="title">
+                <column name="title" nullable="false" length="32" />
+            </basic>
+            <basic name="potentiallyConflicting">
+                <column name="conflicting" nullable="false" />
+            </basic>
+            <!-- <many-to-one name="room" fetch="LAZY"> <join-column name="room_id"
+                referenced-column-name="id" insertable="false" updatable="false" /> </many-to-one> -->
+            <embedded name="timeRange" />
+            <embedded name="dateTimeConfirmed" />
+        </attributes>
+    </entity>
+    <entity
+            class="com.pluralsight.frontdesk.core.scheduleaggregate.Schedule">
+        <table name="SCHEDULES" />
+        <named-query name="Schedule.findByClinic">
+            <query>SELECT s FROM Schedule s WHERE s.clinicId = :clinic</query>
+        </named-query>
+        <convert
+                converter="pluralsightddd.sharedkernel.infrastructure.data.converters.IDAttributeConverter"
+                attribute-name="id">
+        </convert>
+        <attributes>
+            <basic name="clinicId">
+                <column name="clinic_id" nullable="false" />
+            </basic>
+            <one-to-many name="appointments" orphan-removal="true">
+                <join-column name="schedule_id" />
+                <cascade>
+                    <cascade-all />
+                </cascade>
+            </one-to-many>
+            <transient name="dateRange" />
+        </attributes>
+    </entity>
+    <entity
+            class="com.pluralsight.frontdesk.core.syncedaggregates.AppointmentType">
+        <table name="APPOINTMENT_TYPES" />
+        <attributes>
+            <basic name="name">
+                <column name="name" length="32" nullable="false" />
+            </basic>
+            <basic name="code">
+                <column name="code" length="8" nullable="false" />
+            </basic>
+            <basic name="minutes">
+                <column name="minutes" />
+            </basic>
+        </attributes>
+    </entity>
+    <entity
+            class="com.pluralsight.frontdesk.core.syncedaggregates.Client">
+        <table name="CLIENTS" />
+        <attributes>
+            <basic name="preferredName">
+                <column name="name" length="32" nullable="false" />
+            </basic>
+            <basic name="salutation">
+                <column name="salutation" length="32" />
+            </basic>
+            <basic name="preferredDoctorId" />
+            <basic name="emailAddress">
+                <column name="email" length="32" nullable="false" />
+            </basic>
+            <!-- More examples see https://en.wikibooks.org/wiki/Java_Persistence/ElementCollection -->
+            <element-collection name="patients" fetch="EAGER">
+                <collection-table name="PATIENTS">
+                    <join-column name="client_id"
+                                 referenced-column-name="id" />
+                </collection-table>
+            </element-collection>
+        </attributes>
+    </entity>
+    <entity
+            class="com.pluralsight.frontdesk.core.syncedaggregates.Doctor">
+        <table name="DOCTORS" />
+        <attributes>
+            <basic name="name">
+                <column name="name" length="32" nullable="false" />
+            </basic>
+        </attributes>
+    </entity>
+    <entity
+            class="com.pluralsight.frontdesk.core.syncedaggregates.Room">
+        <table name="ROOMS" />
+        <attributes>
+            <basic name="name">
+                <column name="name" length="32" nullable="false" />
+            </basic>
+        </attributes>
+    </entity>
+
+    <embeddable
+            class="pluralsightddd.sharedkernel.core.valueobjects.DateTimeOffset">
+        <attributes>
+            <basic name="utcDateTime">
+                <column name="offset_datetime" column-definition="TIMESTAMP" />
+            </basic>
+        </attributes>
+    </embeddable>
+    <embeddable
+            class="pluralsightddd.sharedkernel.core.valueobjects.DateTimeOffsetRange">
+        <attributes>
+            <embedded name="start">
+                <attribute-override name="utcDateTime">
+                    <column name="start_datetime" nullable="false" />
+                </attribute-override>
+            </embedded>
+            <embedded name="end">
+                <attribute-override name="utcDateTime">
+                    <column name="end_dateTime" nullable="false" />
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </embeddable>
+    <embeddable
+            class="com.pluralsight.frontdesk.core.valueobjects.AnimalType">
+        <attributes>
+            <basic name="species">
+                <column name="species" length="32" />
+            </basic>
+            <basic name="breed">
+                <column name="breed" length="3" />
+            </basic>
+        </attributes>
+    </embeddable>
+    <embeddable
+            class="com.pluralsight.frontdesk.core.syncedaggregates.Patient">
+        <attributes>
+            <basic name="id">
+                <column name="id" nullable="false" />
+            </basic>
+            <basic name="name">
+                <column name="name" length="32" nullable="false" />
+            </basic>
+            <basic name="sex">
+                <column name="sex" length="8" />
+            </basic>
+            <basic name="preferredDoctorId">
+                <column name="preferredDoctor" />
+            </basic>
+            <embedded name="animalType" />
+        </attributes>
+    </embeddable>
+
+    <converter class="pluralsightddd.sharedkernel.infrastructure.data.converters.IDAttributeConverter"></converter>
+
+</entity-mappings>

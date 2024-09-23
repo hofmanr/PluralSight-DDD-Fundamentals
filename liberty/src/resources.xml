@@ -1,0 +1,21 @@
+<server description="Application resources for ${project.root}">
+
+    <featureManager>
+        <feature>jakartaee-10.0</feature>
+    </featureManager>
+
+    <jpa defaultPersistenceProvider="org.eclipse.persistence.jpa.PersistenceProvider" />
+    <dataSource id="${project.root}.h2ds"
+                jndiName="jdbc/vetClinicDS"
+                isolationLevel="TRANSACTION_READ_UNCOMMITTED"
+                type="javax.sql.XADataSource">
+        <jdbcDriver libraryRef="H2Lib"
+                    javax.sql.ConnectionPoolDataSource="org.h2.jdbcx.JdbcDataSource"
+                    javax.sql.DataSource="org.h2.jdbcx.JdbcDataSource"
+                    javax.sql.XADataSource="org.h2.jdbcx.JdbcDataSource" />
+        <properties URL="jdbc:h2:mem:vetClinic"
+                    user="sa"
+                    password="sa" />
+    </dataSource>
+
+</server>

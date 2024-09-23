@@ -1,0 +1,133 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.pluralsight</groupId>
+        <artifactId>vet-clinic</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>liberty</artifactId>
+    <packaging>pom</packaging>
+    <name>${project.artifactId}</name>
+    <description>${project.artifactId} oplevering richting Liberty.</description>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <!-- property voor Liberty maven plugin -->
+        <version.liberty-maven-plugin>3.7.1</version.liberty-maven-plugin>
+
+        <!-- Liberty version (e.g. 21.0.0.1-1) -->
+        <liberty.version>24.0.0.5</liberty.version>
+        <!-- property for Liberty environment variable; must be defined on the OS -->
+        <!-- e.g. Windows system variable 'LIBERTY_HOME=c:/ws/liberty' or on MacOS 'export LIBERTY_HOME=/Users/rinus/Develop/liberty' in .zshrc -->
+        <liberty.home.folder>${env.LIBERTY_HOME}/liberty-${liberty.version}</liberty.home.folder>
+        <liberty.server.config.dir>${liberty.home.folder}/usr/servers/${project.root}-server</liberty.server.config.dir>
+
+        <!-- property for application name -->
+        <project.root>vcc</project.root>
+
+        <version.maven-resources-plugin>3.1.0</version.maven-resources-plugin>
+    </properties>
+
+    <build>
+
+        <plugins>
+            <!-- Liberty Maven plugin for Websphere Liberty Profile server via Maven -->
+            <plugin>
+                <groupId>io.openliberty.tools</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <version>${version.liberty-maven-plugin}</version>
+                <configuration>
+                    <!-- Folder where the Liberty configuration files can be found (e.g. sources.xml) -->
+                    <!-- The files in this folder will be use when the server is created (mvn liberty:create) -->
+                    <configDirectory>${project.build.directory}/resources</configDirectory>
+
+                    <!-- Location where the Liberty distribution can be found -->
+                    <installDirectory>${liberty.home.folder}</installDirectory>
+
+                    <!-- Name of the Liberty server which is a subdirectory in the Liberty user directory (usr/servers) -->
+                    <serverName>${project.root}-server</serverName>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${version.maven-resources-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <escapeString>\</escapeString>
+                            <outputDirectory>target/resources</outputDirectory>
+                            <nonFilteredFileExtensions>
+                                <nonFilteredFileExtension>jar</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>p12</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>keys</nonFilteredFileExtension>
+                                <nonFilteredFileExtension>jks</nonFilteredFileExtension>
+                            </nonFilteredFileExtensions>
+                            <resources>
+                                <resource>
+                                    <directory>src</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+    <profiles>
+        <profile>
+            <!-- create a new Liberty server -->
+            <!-- call 'mvn clean package -pl liberty -Pliberty-create-server' -->
+            <id>liberty-create-server</id>
+            <build>
+                <plugins>
+                    <!-- clean the server configuration -->
+                    <plugin>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <filesets>
+                                <fileset>
+                                    <directory>${liberty.server.config.dir}</directory>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </plugin>
+
+                    <!-- Create the server incl. copying the configuration -->
+                    <plugin>
+                        <groupId>io.openliberty.tools</groupId>
+                        <artifactId>liberty-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>create-server</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>create</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

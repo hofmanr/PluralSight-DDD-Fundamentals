@@ -1,0 +1,50 @@
+<server description="Infrastructure for ${project.root} on localhost">
+
+    <!-- Create default keystore with self-signed certificate -->
+    <keyStore id="defaultKeyStore" password="Liberty"/>
+    <ssl id="defaultSSLConfig" keyStoreRef="defaultKeyStore" trustStoreRef="defaultTrustStore" trustDefaultCerts="true"  sslProtocol="TLSv1.2" />
+
+    <!-- End-point for the server, add attribute host="*" when you want to enable access from another (remote) client machine -->
+    <httpEndpoint id="defaultHttpEndpoint" httpPort="9080" httpsPort="9443">
+        <sslOptions sslRef="defaultSSLConfig" suppressHandshakeErrors="true"/>
+    </httpEndpoint>
+    <sipEndpoint id="defaultSipEndpoint" sipTCPPort="5060" sipUDPPort="5060" sipTLSPort="5061" />
+    <wasJmsEndpoint id="InboundJmsEndpoint" wasJmsPort="7276" wasJmsSSLPort="7286" />
+    <iiopEndpoint id="defaultIiopEndpoint" iiopPort="2811">
+        <iiopsOptions iiopsPort="9402" sslRef="defaultSSLConfig" />
+    </iiopEndpoint>
+
+    <library id="H2Lib">
+        <fileset dir="${server.config.dir}/lib/global" includes="h2*.jar" />
+    </library>
+
+    <!-- Local user and groups -->
+    <basicRegistry id="${project.root}.registry">
+        <user name="admin" password="s3cr3t" />
+        <user name="developer" password="s3cr3t" />
+        <user name="reader" password="s3cr3t" />
+        <user name="writer" password="s3cr3t" />
+        <group name="ADMIN">
+            <member name="admin" />
+        </group>
+        <group name="DEVELOP">
+            <member name="developer" />
+        </group>
+        <group name="READ">
+            <member name="reader" />
+            <member name="writer" />
+            <member name="admin" />
+        </group>
+        <group name="WRITE">
+            <member name="writer" />
+            <member name="admin" />
+        </group>
+    </basicRegistry>
+    <administrator-role>
+        <user>admin</user>
+    </administrator-role>
+    <security-role>
+        <role-name>pcc.runasrole</role-name>
+    </security-role>
+
+</server>

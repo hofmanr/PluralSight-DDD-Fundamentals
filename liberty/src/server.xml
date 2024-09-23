@@ -1,0 +1,24 @@
+<server description="Server for ${project.root} on localhost">
+    <featureManager>
+        <!-- Needed for deployment from IntelliJ -->
+        <feature>localConnector-1.0</feature>
+        <!-- AdminCenter http://localhost:9080/adminCenter -->
+        <feature>adminCenter-1.0</feature>
+        <!-- Needed to start the application from IntelliJ. Not needed in Eclipse. Probably a bug in the plugin -->
+        <!-- <feature>ejbLite-3.2</feature> -->
+        <feature>enterpriseBeansLite-4.0</feature>
+    </featureManager>
+
+    <applicationMonitor updateTrigger="mbean" />
+    <!-- Write access from adminCenter -->
+    <remoteFileAccess>
+        <writeDir>${server.config.dir}</writeDir>
+        <writeDir>${server.config.dir}/dropins</writeDir>
+    </remoteFileAccess>
+
+    <include location="variables.xml"/>
+    <include location="infra.xml"/>
+    <include location="resources.xml"/>
+    <include location="resources_jms.xml"/>
+    <include location="ear.xml" optional="true"/>
+</server>
